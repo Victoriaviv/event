@@ -10,6 +10,7 @@ import {
   getUserProfile,
 } from '../services/authService';
 
+
 export const register = async (req: Request, res: Response) => {
   try {
     const { email, password, name, role } = req.body;
@@ -51,15 +52,23 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
   try {
-    if (!req.user) {
+    const authReq = req as AuthRequest; // cast to your custom request with .user
+    
+    if (!authReq.user) {
       res.status(401).json({ message: 'Unauthorized' });
-      return;  // Just return void here, don't return the response object
+      return;
     }
 
-    const user = await getUserProfile(req.user.id);
-    res.json({ id: user.id, email: user.email, name: user.name, role: user.role, isApproved: user.isApproved });
+    const user = await getUserProfile(authReq.user.id);
+    res.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      isApproved: user.isApproved,
+    });
   } catch (err: any) {
     res.status(500).json({ message: 'Failed to get profile', error: err.message });
   }
