@@ -51,9 +51,13 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const getProfile = async (req: AuthRequest, res: Response) => {
+export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    if (!req.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;  // Just return void here, don't return the response object
+    }
+
     const user = await getUserProfile(req.user.id);
     res.json({ id: user.id, email: user.email, name: user.name, role: user.role, isApproved: user.isApproved });
   } catch (err: any) {
